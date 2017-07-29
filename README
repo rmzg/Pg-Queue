@@ -1,5 +1,51 @@
 Pg-Queue
 
+=head1 NAME
+
+Pg::Queue - Simple SKIP LOCKED based Queue for Postgresql
+
+
+=head1 VERSION
+
+This document describes Pg::Queue version 1.0
+
+
+=head1 SYNOPSIS
+
+	use Pg::Queue;
+	use DBI;
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=database", "", "", {AutoCommit=>1, RaiseError=>1})
+		or die "DBI FAILURE $DBI::errstr";
+	
+	my $queue = Pg::Queue->new( dbh => $dbh, queuename => "myqueue" );
+
+	$queue->create_queue_table;
+
+	for( 0 .. 10 ) {
+		$queue->add_work_item( "work item $_" );
+	}
+
+	while( 1 ) { # We don't know how many queue items are remaining
+		my $processed = $queue->pull_work_item(sub{
+			my($id,$item) =  @_;
+			print "$item has id $id\n";
+			return 1;
+		});
+
+		last unless $processed; #Exit when there's no more queue items
+		                        # Or just sleep and try again
+	}
+
+  
+=head1 DESCRIPTION
+
+This module provides an OO interface to a Postgresql table which implements a simple yet highly 
+concurrent queue via the new 9.5 feature "SKIP LOCKED". For further details on how SKIP LOCKED 
+works, see L<https://www.postgresql.org/docs/current/static/sql-select.html#SQL-FOR-UPDATE-SHARE>. 
+For information using it to implement a queue, see 
+L<https://blog.2ndquadrant.com/what-is-select-skip-locked-for-in-postgresql-9-5/>.
+
 INSTALLATION
 
 To install this module, run the following commands:

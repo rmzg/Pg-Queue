@@ -24,4 +24,14 @@ WriteMakefile(
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Pg-Queue-*' },
+    META_MERGE => {
+        "meta-spec" => { version => 2 },
+        resources => {
+            repository => {
+                type => 'git',
+                url  => 'git://github.com/rmzg/Pg-Queue.git',
+                web  => 'https://github.com/rmzg/Pg-Queue',
+            },
+        },
+    },
 );
